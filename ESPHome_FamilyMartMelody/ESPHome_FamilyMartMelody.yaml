@@ -1,0 +1,60 @@
+substitutions:
+  devicename: familymartmelody_player
+  friendly_devicename: FamilyMartMelodyPlayer
+
+esphome:
+  name: $devicename
+  platform: ESP32
+  board: nodemcu-32s
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  ap:
+    ssid: $friendly_devicename Fallback
+    password: !secret wifi_password
+
+ota:
+  password: !secret ota_password
+
+output:
+  - platform: ledc
+    pin: GPIO4
+    id: rtttl_out
+
+rtttl:
+  output: rtttl_out
+  on_finished_playback:
+    - logger.log: 'Playback complete'
+
+api:
+  password: !secret api_password
+  services:
+    - service: play_familymartmelody
+      then:
+        - rtttl.play:
+            rtttl: "familymart:d=8,o=5,b=100:e,c,g,c,d,4g,d,d,e,d,g,4c"
+
+logger:
+
+captive_portal:
+
+sensor:
+  - platform: wifi_signal
+    name: $friendly_devicename WiFi Signal
+    update_interval: 60s
+    
+  - platform: uptime
+    name: $friendly_devicename uptime
+
+binary_sensor:
+  - platform: status
+    name: $friendly_devicename Status
+
+switch:
+  - platform: restart
+    name: $friendly_devicename Restart
+
+text_sensor:
+  - platform: version
+    name: $friendly_devicename version
